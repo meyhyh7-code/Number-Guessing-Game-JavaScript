@@ -1,0 +1,194 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Number Guessing Game</title>
+    <style>
+        /* Base Page Styles */
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background-color: #f4f7f6;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+            margin: 0;
+        }
+
+        /* Game Container Card */
+        .game-card {
+            background-color: #ffffff;
+            padding: 30px;
+            border-radius: 12px;
+            box-shadow: 0 8px 24px rgba(0, 0, 0, 0.1);
+            text-align: center;
+            max-width: 400px;
+            width: 100%;
+        }
+
+        h1 {
+            color: #2c3e50;
+            margin-top: 0;
+        }
+
+        p {
+            color: #7f8c8d;
+            font-size: 1.1rem;
+        }
+
+        /* Input and Buttons Setup */
+        input[type="number"] {
+            width: 80px;
+            padding: 12px;
+            font-size: 1.2rem;
+            border: 2px solid #bdc3c7;
+            border-radius: 6px;
+            text-align: center;
+            margin-bottom: 15px;
+            outline: none;
+        }
+
+        input[type="number"]:focus {
+            border-color: #3498db;
+        }
+
+        button {
+            background-color: #3498db;
+            color: white;
+            border: none;
+            padding: 12px 24px;
+            font-size: 1rem;
+            border-radius: 6px;
+            cursor: pointer;
+            transition: background 0.2s;
+            display: block;
+            margin: 10px auto;
+        }
+
+        button:hover {
+            background-color: #2980b9;
+        }
+
+        /* Message Display */
+        .message {
+            font-weight: bold;
+            margin-top: 20px;
+            font-size: 1.1rem;
+            min-height: 24px;
+        }
+
+        /* Utility classes for dynamic message colors */
+        .correct { color: #27ae60; }
+        .wrong { color: #e74c3c; }
+        
+        .hidden {
+            display: none;
+        }
+    </style>
+</head>
+<body>
+
+    <div class="game-card">
+        <h1>Guess The Number</h1>
+        <p>I am thinking of a number between <b>1 and 100</b>. Can you guess it?</p>
+
+        <!-- User Entry Fields -->
+        <input type="number" id="guessInput" min="1" max="100" placeholder="0">
+        <button id="guessBtn">Submit Guess</button>
+        <button id="resetBtn" class="hidden">Play Again</button>
+
+        <!-- Feedback Area -->
+        <div id="messageOutput" class="message"></div>
+    </div>
+
+    <script>
+        // --- 1. Game State Variables ---
+        let targetNumber = generateRandomNumber();
+        let attemptsCount = 0;
+
+        // --- 2. DOM Elements Selection ---
+        const guessInput = document.getElementById('guessInput');
+        const guessBtn = document.getElementById('guessBtn');
+        const resetBtn = document.getElementById('resetBtn');
+        const messageOutput = document.getElementById('messageOutput');
+
+        // --- 3. Helper Functions ---
+        function generateRandomNumber() {
+            // Generates a whole number between 1 and 100
+            return Math.floor(Math.random() * 100) + 1;
+        }
+
+        function checkGuess() {
+            // Convert input text to an actual integer number
+            const userGuess = parseInt(guessInput.value);
+
+            // Input Validation: Check if input is blank or outside boundaries
+            if (isNaN(userGuess) || userGuess < 1 || userGuess > 100) {
+                messageOutput.textContent = "❌ Please enter a valid number between 1 and 100.";
+                messageOutput.className = "message wrong";
+                return;
+            }
+
+            // Increment the player's turn counter
+            attemptsCount++;
+
+            // --- 4. Game Win/Loss Evaluation ---
+            if (userGuess === targetNumber) {
+                // Correct Answer Path
+                messageOutput.textContent = `🎉 Correct! You guessed it in ${attemptsCount} attempts!`;
+                messageOutput.className = "message correct";
+                endGame();
+            } else if (userGuess > targetNumber) {
+                // Too High Path
+                messageOutput.textContent = "📉 Too high! Try a lower number.";
+                messageOutput.className = "message wrong";
+            } else {
+                // Too Low Path
+                messageOutput.textContent = "📈 Too low! Try a higher number.";
+                messageOutput.className = "message wrong";
+            }
+
+            // Clear input container and return focus for fast typing
+            guessInput.value = '';
+            guessInput.focus();
+        }
+
+        function endGame() {
+            // Toggle visibility states of buttons
+            guessInput.disabled = true;
+            guessBtn.classList.add('hidden');
+            resetBtn.classList.remove('hidden');
+        }
+
+        function restartGame() {
+            // Reset numerical tracking values
+            targetNumber = generateRandomNumber();
+            attemptsCount = 0;
+
+            // Restore initial DOM interface states
+            messageOutput.textContent = '';
+            messageOutput.className = "message";
+            guessInput.value = '';
+            guessInput.disabled = false;
+            
+            guessBtn.classList.remove('hidden');
+            resetBtn.classList.add('hidden');
+            guessInput.focus();
+        }
+
+        // --- 5. Event Listeners ---
+        // Click handling for buttons
+        guessBtn.addEventListener('click', checkGuess);
+        resetBtn.addEventListener('click', restartGame);
+
+        // Quality of life: Pressing "Enter" inside the input triggers the guess action
+        guessInput.addEventListener('keydown', function(event) {
+            if (event.key === 'Enter') {
+                checkGuess();
+            }
+        });
+    </script>
+
+</body>
+</html>
